@@ -1,1 +1,2 @@
-Keylogging
+# Keylogger/Clicklogger
+So this project will be able to log any keys that are pressed on the keyboard. When it runs in the background you can go to any website and type something and it will log it in the log.txt file. Also there is an interval of 1 second that will take pictures of your desktop screen until you end the program. Then there is just a fun little thing I inputted where the program logs upir mouse click locations.
